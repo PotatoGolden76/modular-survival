@@ -5,17 +5,12 @@ using System;
 [System.Serializable]
 public class Item
 {
-    public string itemId { get; set; }
-    public string itemName { get; set; }
-    public string type { get; set; }
+    public string ItemId;
+    public string ItemName;
+    public ItemType Type; 
 
-    public Item()
+    public static string toString(Item it)
     {
-
-    }
-
-    public string toString()
-    {
-        return (itemId + " " + type + " " + itemName);
+        return (it.ItemId + "\n" + it.Type + "\n" + it.ItemName);
     }
 }

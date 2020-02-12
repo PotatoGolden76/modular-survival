@@ -63,10 +63,7 @@ public class ContentLoader
                 string str;
                 str = reader.ReadToEnd();
 
-                Item it = new Item();
-                JsonUtility.FromJsonOverwrite(str, it);
-
-                Debug.Log(it.toString());
+                Item it = JsonUtility.FromJson<Item>(str);
 
                 GameRegistry.addItem(it);
             }

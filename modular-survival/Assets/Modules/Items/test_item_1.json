@@ -1,5 +1,5 @@
 {
-    "itemId": "test_item_1",
-    "itemName": "Test Item 1",
-    "type":  "TOOL"
+    "ItemId": "test_item_1",
+    "ItemName": "Test Item 1",
+    "Type":  "TOOL"
 }
