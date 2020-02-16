@@ -1,15 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public static class GameRegistry
 {
-    private static Dictionary<string, Item> registry = new Dictionary<string, Item>();
+    private static Dictionary<string, Item> ItemRegistry = new Dictionary<string, Item>();
+    //private static Dictionary<string, Biome> BiomeRegistry = new Dictionary<string, Biome>();
 
+    //ItemRegistry methods
     public static void addItem(Item it) {
-        if(!registry.ContainsKey(it.ItemId))
+        if(!ItemRegistry.ContainsKey(it.ItemId))
         {
-            registry.Add(it.ItemId, it);
+            ItemRegistry.Add(it.ItemId, it);
             Console.Log("Added item: <i>" + it.ItemId + "</i> to the registry");
         } else
         {
@@ -19,19 +22,43 @@ public static class GameRegistry
 
     public static Item getItem(string id)
     {
-        if(registry.ContainsKey(id))
+        if(ItemRegistry.ContainsKey(id))
         {
-            return registry[id];
+            return ItemRegistry[id];
         } else
         {
-            Debug.Log("Item with id " + id + " not found.");
+            //Debug.Log("Item with id " + id + " not found.");
             return null;
         }
     }
 
     public static Dictionary<string, Item>.ValueCollection getAllItems()
     {
-        return registry.Values;
+        return ItemRegistry.Values;
     }
+
+    //BiomeRegistry methods
+    //public static void addBiome(Biome b)
+    //{
+    //    throw new NotImplementedException();
+    //}
+
+    //public static Biome getBiome(string id)
+    //{
+    //    if (BiomeRegistry.ContainsKey(id))
+    //    {
+    //        return BiomeRegistry[id];
+    //    }
+    //    else
+    //   {
+    //        //Console.Log("Biome with id " + id + " not found.");
+    //        return null;
+    //    }
+    //}
+
+    //public static Dictionary<string, Biome>.ValueCollection getAllBiomes()
+    //{
+    //    return BiomeRegistry.Values;
+    //}
 
 }

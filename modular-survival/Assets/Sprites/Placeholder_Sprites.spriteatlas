@@ -43,7 +43,9 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 2800000, guid: ce51c6d5e2a3ba840a2eedeaf24b252c, type: 3}
-    totalSpriteSurfaceArea: 56576
+    - {fileID: 2800000, guid: fa66efe8ffeaf63438e52cb2bbfc20a3, type: 3}
+    - {fileID: 2800000, guid: e0f0fc79847fa264f80e6a17d986e4f4, type: 3}
+    totalSpriteSurfaceArea: 58624
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
@@ -268,6 +270,8 @@ SpriteAtlas:
   - {fileID: -5680998832068056606, guid: ce51c6d5e2a3ba840a2eedeaf24b252c, type: 3}
   - {fileID: 7025343244974659125, guid: ce51c6d5e2a3ba840a2eedeaf24b252c, type: 3}
   - {fileID: -7881604942549883164, guid: ce51c6d5e2a3ba840a2eedeaf24b252c, type: 3}
+  - {fileID: 21300000, guid: fa66efe8ffeaf63438e52cb2bbfc20a3, type: 3}
+  - {fileID: 21300000, guid: e0f0fc79847fa264f80e6a17d986e4f4, type: 3}
   m_PackedSpriteNamesToIndex:
   - Placeholder_Tileset_121
   - Placeholder_Tileset_120
@@ -490,5 +494,7 @@ SpriteAtlas:
   - Placeholder_Tileset_70
   - Placeholder_Tileset_231
   - Placeholder_Tileset_230
+  - Placeholder_1
+  - Placeholder_2
   m_Tag: Placeholder_Sprites
   m_IsVariant: 0

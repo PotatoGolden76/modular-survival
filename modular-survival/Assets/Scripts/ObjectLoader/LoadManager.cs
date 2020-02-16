@@ -9,6 +9,8 @@ public class LoadManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GameObject.DontDestroyOnLoad(gameObject);
+
         Console.Log("Starting load procedure");
         Console.Log("Current data folder is: " + Application.dataPath);
 

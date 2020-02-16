@@ -34,13 +34,21 @@ public class ContentLoader
             }
         }
 
-        if (!Directory.Exists(Path.Combine(path, "Items")))
+        initSubfolder("Items");
+        initSubfolder("Chunks_Data");
+
+    }
+
+    private void initSubfolder(string s)
+    {
+        if (!Directory.Exists(Path.Combine(path, s)))
         {
-            Debug.LogError("Items folder not found, creating folder");
+            Debug.LogError(s + " folder not found, creating folder");
 
             try
             {
-                Directory.CreateDirectory(Path.Combine(path, "Items"));
+                Directory.CreateDirectory(Path.Combine(path, s));
+                Console.Log("Created " + s + " folder");
             }
             catch (Exception e)
             {
@@ -48,8 +56,11 @@ public class ContentLoader
                 Debug.Log(e.StackTrace);
             }
         }
+    }
 
-        //Debug.Log(path);
+    public void loadBiomes()
+    {
+        throw new NotImplementedException();
     }
 
     public void loadItems()

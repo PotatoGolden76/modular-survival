@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Console
   - Registry
+  - Grid
   layers:
   - Default
   - TransparentFX
