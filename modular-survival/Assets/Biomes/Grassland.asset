@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a8422c3d8293d643b6da5eb08482de7, type: 3}
+  m_Name: Grassland
+  m_EditorClassIdentifier: 
+  BiomeId: biome_grassland
+  MinimumElevation: 5
+  mainTile: {fileID: 11400000, guid: 9669039f385c1f54bb1b71d6e08ad648, type: 2}
+  Ledge_Front: {fileID: 11400000, guid: 9de558ef3eaaf0943820ff46f2ee445e, type: 2}
+  Ledge_Back: {fileID: 11400000, guid: 5208313abb769184a8c3d161f6bd7893, type: 2}
+  Ledge_Left: {fileID: 11400000, guid: 4cd7fdf38bf6746428d558e9113f659b, type: 2}
+  Ledge_Right: {fileID: 11400000, guid: cfe2feeed0a04ad429e5417b5c634cf1, type: 2}
+  InCorner_Back_Left: {fileID: 11400000, guid: b9f3960625dc39a41acb9363a8e71441, type: 2}
+  InCorner_Back_Right: {fileID: 11400000, guid: f1b0a3439d128be469cc4692b80901e8,
+    type: 2}
+  InCorner_Front_Left: {fileID: 11400000, guid: 410a2d18707557743ba31ab2afeee679,
+    type: 2}
+  InCorner_Front_Right: {fileID: 11400000, guid: 3db72244f84c61048a38f7755c547dec,
+    type: 2}
+  OutCorner_Back_Left: {fileID: 11400000, guid: 5a6abcab03668d1478f2f35f6d2f6d2b,
+    type: 2}
+  OutCorner_Back_Right: {fileID: 11400000, guid: 89fcee7b30e76184da3433b00cd18adc,
+    type: 2}
+  OutCorner_Front_Left: {fileID: 11400000, guid: 4a6a58847dcf94c4e8103e00281b2e1a,
+    type: 2}
+  OutCorner_Front_Right: {fileID: 11400000, guid: ed00238e52f669242bf0f40092bd3f00,
+    type: 2}

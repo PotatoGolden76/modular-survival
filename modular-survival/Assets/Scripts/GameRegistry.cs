@@ -38,27 +38,27 @@ public static class GameRegistry
     }
 
     //BiomeRegistry methods
-    //public static void addBiome(Biome b)
-    //{
-    //    throw new NotImplementedException();
-    //}
+    /*public static void addBiome(Biome b)
+    {
+        throw new NotImplementedException();
+    }
 
-    //public static Biome getBiome(string id)
-    //{
-    //    if (BiomeRegistry.ContainsKey(id))
-    //    {
-    //        return BiomeRegistry[id];
-    //    }
-    //    else
-    //   {
-    //        //Console.Log("Biome with id " + id + " not found.");
-    //        return null;
-    //    }
-    //}
+    public static Biome getBiome(string id)
+    {
+        if (BiomeRegistry.ContainsKey(id))
+        {
+            return BiomeRegistry[id];
+        }
+        else
+        {
+            //Console.Log("Biome with id " + id + " not found.");
+            return null;
+        }
+    }
 
-    //public static Dictionary<string, Biome>.ValueCollection getAllBiomes()
-    //{
-    //    return BiomeRegistry.Values;
-    //}
+    public static Dictionary<string, Biome>.ValueCollection getAllBiomes()
+    {
+        return BiomeRegistry.Values;
+    }*/
 
 }
