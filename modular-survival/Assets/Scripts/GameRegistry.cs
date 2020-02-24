@@ -6,15 +6,18 @@ using UnityEngine;
 public static class GameRegistry
 {
     private static Dictionary<string, Item> ItemRegistry = new Dictionary<string, Item>();
-    //private static Dictionary<string, Biome> BiomeRegistry = new Dictionary<string, Biome>();
 
-    //ItemRegistry methods
-    public static void addItem(Item it) {
-        if(!ItemRegistry.ContainsKey(it.ItemId))
+    private static List<Biome> BiomeRegistry = new List<Biome>();
+
+    #region ItemRegistry Methods
+    public static void addItem(Item it)
+    {
+        if (!ItemRegistry.ContainsKey(it.ItemId))
         {
             ItemRegistry.Add(it.ItemId, it);
             Console.Log("Added item: <i>" + it.ItemId + "</i> to the registry");
-        } else
+        }
+        else
         {
             Console.Log("Item: <i>" + it.ItemId + "</i> already exists");
         }
@@ -22,10 +25,11 @@ public static class GameRegistry
 
     public static Item getItem(string id)
     {
-        if(ItemRegistry.ContainsKey(id))
+        if (ItemRegistry.ContainsKey(id))
         {
             return ItemRegistry[id];
-        } else
+        }
+        else
         {
             //Debug.Log("Item with id " + id + " not found.");
             return null;
@@ -36,29 +40,33 @@ public static class GameRegistry
     {
         return ItemRegistry.Values;
     }
+    #endregion
 
-    //BiomeRegistry methods
-    /*public static void addBiome(Biome b)
+    #region BiomeRegistry Methods
+    public static void addBiome(Biome b)
     {
-        throw new NotImplementedException();
+        Console.Log("Added item: <i>" + b.BiomeId + "</i> to the registry");
+        BiomeRegistry.Add(b);
+        BiomeRegistry.Sort();
     }
 
     public static Biome getBiome(string id)
     {
-        if (BiomeRegistry.ContainsKey(id))
+        return BiomeRegistry.Find(b => b.BiomeId.Equals(id));
+    }
+
+    public static void printBiomeList()
+    {
+        foreach (Biome b in BiomeRegistry)
         {
-            return BiomeRegistry[id];
-        }
-        else
-        {
-            //Console.Log("Biome with id " + id + " not found.");
-            return null;
+            Console.Log(b.BiomeId);
         }
     }
 
-    public static Dictionary<string, Biome>.ValueCollection getAllBiomes()
+    public static List<Biome> getBiomes()
     {
-        return BiomeRegistry.Values;
-    }*/
+        return BiomeRegistry;
+    }
+    #endregion
 
 }

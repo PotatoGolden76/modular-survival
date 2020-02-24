@@ -6,7 +6,6 @@ public class ChunkManager : MonoBehaviour
 {
 
     public PlayerController player;
-    public Generator generator;
     public Grid grid;
 
     private Vector3 oldPlayerPos = new Vector3(0, 0, 0);
@@ -24,12 +23,11 @@ public class ChunkManager : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         grid = GameObject.FindGameObjectWithTag("Grid").GetComponent<Grid>();
 
-        generator = gameObject.GetComponent<Generator>();
+        Generator.Start();
     }
 
     private void Update()
     {
-        //Debug.Log(getCurrentChunk((int)player.transform.position.x, (int)player.transform.position.y));
         if (!player.transform.position.Equals(oldPlayerPos))
         {
             oldPlayerPos = player.transform.position;
@@ -37,15 +35,15 @@ public class ChunkManager : MonoBehaviour
             {
                 for (int j = (int)player.transform.position.y - (RenderDistance * Chunk.CHUNK_SIZE_Y); j <= (int)player.transform.position.y + (RenderDistance * Chunk.CHUNK_SIZE_Y); j = j + Chunk.CHUNK_SIZE_Y)
                 {
-                    Vector2Int itChunk = getCurrentChunk(i, j);
+                    Vector2Int itChunk = Chunk.getChunkAt(i, j);
                     if (!loadedChunks.Exists(c => (c.corner.x == itChunk.x && c.corner.y == itChunk.y)))
                     {
                         Chunk chk = new Chunk(itChunk.x, itChunk.y, chunkPrefab);
                         chk.tilemap.transform.parent = grid.transform;
 
-                        Debug.Log(itChunk);
+                        //Debug.Log(itChunk);
 
-                        generator.GenerateChunk(ref chk);
+                        Generator.GenerateChunk(ref chk);
 
                         loadedChunks.Add(chk);
                     }
@@ -57,31 +55,6 @@ public class ChunkManager : MonoBehaviour
 
         //loadedChunks.ForEach(c => Debug.Log(c.corner));
         //Debug.Log("-----------");
-    }
-
-    public Vector2Int getCurrentChunk(int i, int j)
-    {
-        float px;
-        if (i >= 0)
-        {
-            px = (i / Chunk.CHUNK_SIZE_X) * Chunk.CHUNK_SIZE_X;
-        }
-        else
-        {
-            px = ((i - Chunk.CHUNK_SIZE_X + 1) / Chunk.CHUNK_SIZE_X) * Chunk.CHUNK_SIZE_X;
-        }
-
-        float py;
-        if (j >= 0)
-        {
-            py = (j / Chunk.CHUNK_SIZE_Y) * Chunk.CHUNK_SIZE_Y;
-        }
-        else
-        {
-            py = ((j - Chunk.CHUNK_SIZE_Y + 1) / Chunk.CHUNK_SIZE_Y) * Chunk.CHUNK_SIZE_Y;
-        }
-
-        return new Vector2Int((int)px, (int)py);
     }
 
     private bool outsideRenderView(Chunk c)

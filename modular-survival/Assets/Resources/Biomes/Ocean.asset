@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a8422c3d8293d643b6da5eb08482de7, type: 3}
+  m_Name: Ocean
+  m_EditorClassIdentifier: 
+  BiomeId: biome_ocean
+  MinimumElevation: 0
+  mainTile: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
+  Ledge_Front: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
+  Ledge_Back: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
+  Ledge_Left: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
+  Ledge_Right: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
+  InCorner_Back_Left: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
+  InCorner_Back_Right: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
+    type: 2}
+  InCorner_Front_Left: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
+    type: 2}
+  InCorner_Front_Right: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
+    type: 2}
+  OutCorner_Back_Left: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
+    type: 2}
+  OutCorner_Back_Right: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
+    type: 2}
+  OutCorner_Front_Left: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
+    type: 2}
+  OutCorner_Front_Right: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
+    type: 2}

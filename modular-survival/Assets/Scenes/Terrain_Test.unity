@@ -823,21 +823,14 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2791488020112062530, guid: 4ba4e15cea216714b948b9a5a360c619,
         type: 3}
-      propertyPath: biomes.Array.size
-      value: 2
+      propertyPath: frequency
+      value: 0.0417
       objectReference: {fileID: 0}
-    - target: {fileID: 2791488020112062530, guid: 4ba4e15cea216714b948b9a5a360c619,
+    - target: {fileID: 2791488020112062531, guid: 4ba4e15cea216714b948b9a5a360c619,
         type: 3}
-      propertyPath: biomes.Array.data[0]
-      value: 
-      objectReference: {fileID: 11400000, guid: e35a18b23cedf634796b657a306de74f,
-        type: 2}
-    - target: {fileID: 2791488020112062530, guid: 4ba4e15cea216714b948b9a5a360c619,
-        type: 3}
-      propertyPath: biomes.Array.data[1]
-      value: 
-      objectReference: {fileID: 11400000, guid: 08db727a48099f542aa0b171517d189f,
-        type: 2}
+      propertyPath: RenderDistance
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 2791488020112062556, guid: 4ba4e15cea216714b948b9a5a360c619,
         type: 3}
       propertyPath: m_Name
@@ -898,5 +891,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2791488020112062530, guid: 4ba4e15cea216714b948b9a5a360c619, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 4ba4e15cea216714b948b9a5a360c619, type: 3}

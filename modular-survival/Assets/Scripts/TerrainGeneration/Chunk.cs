@@ -16,10 +16,35 @@ public class Chunk
         corner.x = i;
         corner.y = j;
     }
-    
+
 
     public void unloadChunk()
     {
         GameObject.Destroy(tilemap.gameObject);
+    }
+
+    public static Vector2Int getChunkAt(int i, int j)
+    {
+        float px;
+        if (i >= 0)
+        {
+            px = (i / Chunk.CHUNK_SIZE_X) * Chunk.CHUNK_SIZE_X;
+        }
+        else
+        {
+            px = ((i - Chunk.CHUNK_SIZE_X + 1) / Chunk.CHUNK_SIZE_X) * Chunk.CHUNK_SIZE_X;
+        }
+
+        float py;
+        if (j >= 0)
+        {
+            py = (j / Chunk.CHUNK_SIZE_Y) * Chunk.CHUNK_SIZE_Y;
+        }
+        else
+        {
+            py = ((j - Chunk.CHUNK_SIZE_Y + 1) / Chunk.CHUNK_SIZE_Y) * Chunk.CHUNK_SIZE_Y;
+        }
+
+        return new Vector2Int((int)px, (int)py);
     }
 }
