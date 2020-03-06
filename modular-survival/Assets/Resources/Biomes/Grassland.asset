@@ -34,3 +34,4 @@ MonoBehaviour:
     type: 2}
   OutCorner_Front_Right: {fileID: 11400000, guid: ed00238e52f669242bf0f40092bd3f00,
     type: 2}
+  tree: {fileID: 11400000, guid: d13a72bdcaf155b48893bc9f5500c8a3, type: 2}

@@ -7,12 +7,23 @@ public class Chunk
 {
     public const int CHUNK_SIZE_X = 16, CHUNK_SIZE_Y = 16;
 
-    public Tilemap tilemap;
+    public Tilemap ground_tilemap, object_tilemap;
     public Vector2Int corner;
 
-    public Chunk(int i, int j, GameObject tileMapPrefab)
+    public Chunk(int i, int j, GameObject chunkPrefab)
     {
-        tilemap = GameObject.Instantiate(tileMapPrefab, new Vector3(i, j, 0), Quaternion.identity).GetComponent<Tilemap>();
+        ground_tilemap = GameObject.Instantiate(chunkPrefab, new Vector3(i, j, 0), Quaternion.identity).GetComponent<Tilemap>();
+
+        Tilemap[] maps = new Tilemap[2];
+        maps = ground_tilemap.gameObject.GetComponentsInChildren<Tilemap>();
+
+        if(maps[0] != ground_tilemap)
+        {
+            object_tilemap = maps[0];
+        } else
+        {
+            object_tilemap = maps[1];
+        }
         corner.x = i;
         corner.y = j;
     }
@@ -20,7 +31,7 @@ public class Chunk
 
     public void unloadChunk()
     {
-        GameObject.Destroy(tilemap.gameObject);
+        GameObject.Destroy(ground_tilemap.gameObject);
     }
 
     public static Vector2Int getChunkAt(int i, int j)

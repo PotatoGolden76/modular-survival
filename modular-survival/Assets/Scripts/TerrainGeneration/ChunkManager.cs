@@ -39,7 +39,7 @@ public class ChunkManager : MonoBehaviour
                     if (!loadedChunks.Exists(c => (c.corner.x == itChunk.x && c.corner.y == itChunk.y)))
                     {
                         Chunk chk = new Chunk(itChunk.x, itChunk.y, chunkPrefab);
-                        chk.tilemap.transform.parent = grid.transform;
+                        chk.ground_tilemap.transform.parent = grid.transform;
 
                         //Debug.Log(itChunk);
 

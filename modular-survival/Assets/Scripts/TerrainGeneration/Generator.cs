@@ -8,29 +8,26 @@ public static class Generator
 {
     #region Noise Settings
     [Range(0.001f, 0.1f)]
-    private static float frequency = 0.001f;
+    private static float biomeFrequency = 0.001f, treeFrequency = 0.005f;
     private static int seed = 23127108;
 
     private static FastNoise TerrainNoise;
-    private static FastNoise VariationNoise;
+    private static FastNoise TreeNoise;
     #endregion
 
     private static void initialiseNoise()
     {
         TerrainNoise = new FastNoise();
-        VariationNoise = new FastNoise();
+        TreeNoise = new FastNoise();
 
         TerrainNoise.SetNoiseType(FastNoise.NoiseType.Simplex);
         TerrainNoise.SetSeed(seed);
-        TerrainNoise.SetFrequency(frequency);
+        TerrainNoise.SetFrequency(biomeFrequency);
 
-        VariationNoise.SetNoiseType(FastNoise.NoiseType.WhiteNoise);
-        VariationNoise.SetSeed(seed);
-        VariationNoise.SetFrequency(frequency);
-
-        Console.Log("Noise settings:");
-        Console.Log("\tFrequency: " + frequency);
-        Console.Log("\tSeed: " + seed);
+        TreeNoise.SetNoiseType(FastNoise.NoiseType.SimplexFractal);
+        TreeNoise.SetFractalOctaves(7);
+        TreeNoise.SetSeed(seed);
+        TreeNoise.SetFrequency(treeFrequency);
     }
 
     public static void Start()
@@ -40,32 +37,38 @@ public static class Generator
 
     public static void GenerateChunk(ref Chunk c)
     {
-        for (int i = c.tilemap.origin.x; i < c.tilemap.origin.x + Chunk.CHUNK_SIZE_X; i++)
+        for (int i = c.ground_tilemap.origin.x; i < c.ground_tilemap.origin.x + Chunk.CHUNK_SIZE_X; i++)
         {
-            for (int j = c.tilemap.origin.y; j < c.tilemap.origin.y + Chunk.CHUNK_SIZE_Y; j++)
+            for (int j = c.ground_tilemap.origin.y; j < c.ground_tilemap.origin.y + Chunk.CHUNK_SIZE_Y; j++)
             {
-                c.tilemap.SetTile(new Vector3Int(i, j, 0), getTile(new Vector2(i + c.corner.x, j + c.corner.y)));
+                c.ground_tilemap.SetTile(new Vector3Int(i, j, 0), GetTerrainTileAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)));
+               
+                if(c.ground_tilemap.GetTile(new Vector3Int(i, j, 0)).Equals(GetBiomeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)).mainTile))
+                {
+                    c.object_tilemap.SetTile(new Vector3Int(i, j, 0), GetTreeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)));
+                }
+
             }
         }
     }
 
-    public static float GetVariationValue(Vector2 v, int totalWeight)
+    public static float GetTreeNoiseValue(Vector2 v)
     {
-        return (VariationNoise.GetWhiteNoise(v.x, v.y) * totalWeight/2) + totalWeight/2;
+        return TreeNoise.GetNoise(v.x, v.y);
     }
 
-    private static float GetTerrainValue(Vector2 v)
+    private static float GetTerrainNoiseValue(Vector2 v)
     {
         return (TerrainNoise.GetNoise(v.x, v.y) * 5) + 5;
     }
 
     private static Biome GetBiomeAtCoords(Vector2 v)
     {
-        float val = GetTerrainValue(v);
+        float val = GetTerrainNoiseValue(v);
 
         foreach (Biome b in GameRegistry.getBiomes())
         {
-            if (val > b.MinimumElevation)
+            if (val >= b.MinimumElevation)
             {
                 return b;
             }
@@ -75,7 +78,20 @@ public static class Generator
         return null;
     }
 
-    private static WeightedBiomeTile getTile(Vector2 v)
+    private static Tile GetTreeAtCoords(Vector2 v)
+    {
+        float val = GetTreeNoiseValue(v);
+        if(val > 0)
+        {
+            return GetBiomeAtCoords(v).tree;
+        }
+
+        return null;
+    }
+
+
+    //TODO: clean this shit up, it can be done so much easier
+    private static BiomeTile GetTerrainTileAtCoords(Vector2 v)
     {
         Biome b = GetBiomeAtCoords(v);
         string Id = b.BiomeId;
