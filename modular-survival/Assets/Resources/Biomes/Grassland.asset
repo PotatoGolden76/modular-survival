@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BiomeId: biome_grassland
   MinimumElevation: 4.29
-  mainTile: {fileID: 11400000, guid: 9669039f385c1f54bb1b71d6e08ad648, type: 2}
+  MainTile: {fileID: 11400000, guid: 9669039f385c1f54bb1b71d6e08ad648, type: 2}
   Ledge_Front: {fileID: 11400000, guid: 9de558ef3eaaf0943820ff46f2ee445e, type: 2}
   Ledge_Back: {fileID: 11400000, guid: 5208313abb769184a8c3d161f6bd7893, type: 2}
   Ledge_Left: {fileID: 11400000, guid: 4cd7fdf38bf6746428d558e9113f659b, type: 2}

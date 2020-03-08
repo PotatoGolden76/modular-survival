@@ -17,7 +17,7 @@ public class Biome : ScriptableObject, IComparable
     public float MinimumElevation;
 
     [Header(header: "Biome Tiles")]
-    public BiomeTile mainTile;
+    public BiomeTile MainTile;
 
     [Space]
     public BiomeTile Ledge_Front = null;

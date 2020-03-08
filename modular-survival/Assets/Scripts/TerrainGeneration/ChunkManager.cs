@@ -51,6 +51,8 @@ public class ChunkManager : MonoBehaviour
             }
 
             loadedChunks.RemoveAll(outsideRenderView);
+
+            //Debug.Log(Chunk.getChunkAt((int)player.transform.position.x, (int)player.transform.position.y));
         }
 
         //loadedChunks.ForEach(c => Debug.Log(c.corner));
@@ -71,9 +73,18 @@ public class ChunkManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.blue;
+        Gizmos.color = Color.white;
         //Gizmos.DrawSphere(player.transform.position, (float)(Chunk.CHUNK_SIZE_X * RenderDistance * Mathf.Sqrt(2) * 1.5));
         loadedChunks.ForEach(c => Gizmos.DrawLine(player.transform.position, new Vector3(c.corner.x, c.corner.y, 0)));
+
+        Gizmos.color = Color.cyan;
+        loadedChunks.ForEach(c =>
+        {
+            Gizmos.DrawLine(new Vector3(c.corner.x, c.corner.y, 0), new Vector3(c.corner.x + Chunk.CHUNK_SIZE_X, c.corner.y, 0));
+            Gizmos.DrawLine(new Vector3(c.corner.x, c.corner.y, 0), new Vector3(c.corner.x, c.corner.y + Chunk.CHUNK_SIZE_Y, 0));
+            Gizmos.DrawLine(new Vector3(c.corner.x + Chunk.CHUNK_SIZE_X, c.corner.y, 0), new Vector3(c.corner.x + Chunk.CHUNK_SIZE_X, c.corner.y + Chunk.CHUNK_SIZE_Y, 0));
+            Gizmos.DrawLine(new Vector3(c.corner.x, c.corner.y + Chunk.CHUNK_SIZE_Y, 0), new Vector3(c.corner.x + Chunk.CHUNK_SIZE_X, c.corner.y + Chunk.CHUNK_SIZE_Y, 0));
+        });
     }
 
 

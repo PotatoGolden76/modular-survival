@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BiomeId: biome_ocean
   MinimumElevation: 0
-  mainTile: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
+  MainTile: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
   Ledge_Front: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
   Ledge_Back: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
   Ledge_Left: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
@@ -34,3 +34,4 @@ MonoBehaviour:
     type: 2}
   OutCorner_Front_Right: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
     type: 2}
+  tree: {fileID: 0}

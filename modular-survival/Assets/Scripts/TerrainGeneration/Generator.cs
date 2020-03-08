@@ -8,14 +8,23 @@ public static class Generator
 {
     #region Noise Settings
     [Range(0.001f, 0.1f)]
-    private static float biomeFrequency = 0.001f, treeFrequency = 0.005f;
+    private static readonly float biomeFrequency = 0.0005f, treeFrequency = 0.005f;
     private static int seed = 23127108;
 
     private static FastNoise TerrainNoise;
     private static FastNoise TreeNoise;
     #endregion
 
-    private static void initialiseNoise()
+    private static readonly List<Vector2Int> directions = new List<Vector2Int>() { new Vector2Int(-1, 1),
+                                                                         new Vector2Int(0, 1),
+                                                                         new Vector2Int(1, 1),
+                                                                         new Vector2Int(1, 0),
+                                                                         new Vector2Int(1, -1),
+                                                                         new Vector2Int(0, -1),
+                                                                         new Vector2Int(-1, -1),
+                                                                         new Vector2Int(-1, 0)};
+
+    private static void InitialiseNoise()
     {
         TerrainNoise = new FastNoise();
         TreeNoise = new FastNoise();
@@ -32,7 +41,8 @@ public static class Generator
 
     public static void Start()
     {
-        initialiseNoise();
+        InitialiseNoise();
+        Console.Log(GetTerrainTileAtCoords(new Vector2(-584, 196)).ToString());
     }
 
     public static void GenerateChunk(ref Chunk c)
@@ -42,10 +52,10 @@ public static class Generator
             for (int j = c.ground_tilemap.origin.y; j < c.ground_tilemap.origin.y + Chunk.CHUNK_SIZE_Y; j++)
             {
                 c.ground_tilemap.SetTile(new Vector3Int(i, j, 0), GetTerrainTileAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)));
-               
-                if(c.ground_tilemap.GetTile(new Vector3Int(i, j, 0)).Equals(GetBiomeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)).mainTile))
+
+                if (c.ground_tilemap.GetTile(new Vector3Int(i, j, 0)).Equals(GetBiomeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)).MainTile))
                 {
-                    c.object_tilemap.SetTile(new Vector3Int(i, j, 0), GetTreeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)));
+                   c.object_tilemap.SetTile(new Vector3Int(i, j, 0), GetTreeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)));
                 }
 
             }
@@ -81,7 +91,7 @@ public static class Generator
     private static Tile GetTreeAtCoords(Vector2 v)
     {
         float val = GetTreeNoiseValue(v);
-        if(val > 0)
+        if (val > 0)
         {
             return GetBiomeAtCoords(v).tree;
         }
@@ -89,47 +99,27 @@ public static class Generator
         return null;
     }
 
-
-    //TODO: clean this shit up, it can be done so much easier
     private static BiomeTile GetTerrainTileAtCoords(Vector2 v)
     {
         Biome b = GetBiomeAtCoords(v);
         string Id = b.BiomeId;
 
-        List<Vector2Int> directions = new List<Vector2Int>() { new Vector2Int(-1, 1),
-                                                         new Vector2Int(0, 1),
-                                                         new Vector2Int(1, 1), 
-                                                         new Vector2Int(1, 0), 
-                                                         new Vector2Int(1, -1), 
-                                                         new Vector2Int(0, -1), 
-                                                         new Vector2Int(-1, -1), 
-                                                         new Vector2Int(-1, 0)};
-
         byte[] t = new byte[4];
 
-        for(int i = 1; i < 8; i += 2)
+        for (int i = 1; i < 8; i += 2)
         {
-            if(GetBiomeAtCoords(v + directions.ToArray()[i]).BiomeId.Equals(Id)) {
+            if (GetBiomeAtCoords(v + directions.ToArray()[i]).BiomeId.Equals(Id))
+            {
                 t[i / 2] = 1;
-            } else
+            }
+            else
             {
                 t[i / 2] = 0;
             }
         }
 
-        bool check = true;
-        //Fill and OCorners
-        for (int i = 0; i < 4; i++)
-        {
-            check = true;
-            if (t[i] != TransitionCodes.Fill[i])
-            {
-                check = false;
-                break;
-            }
-        }
-
-        if (check)
+        #region Code checking
+        if (CompareCode(t, TransitionCodes.Fill))
         {
             for (int i = 0; i < 8; i += 2)
             {
@@ -143,193 +133,86 @@ public static class Generator
                 }
             }
 
-            //Ledges
-            for (int i = 0; i < 4; i++)
-            {
-                check = true;
-                if (t[i] != TransitionCodes.ICorner_Back_Left[i])
-                {
-                    check = false;
-                    break;
-                }
-            }
-
-            if (check)
+            //In Corners   
+            if (CompareCode(t, TransitionCodes.ICorner_Back_Left))
             {
                 return b.InCorner_Back_Left;
             }
 
-            for (int i = 0; i < 4; i++)
-            {
-                check = true;
-                if (t[i] != TransitionCodes.ICorner_Back_Right[i])
-                {
-                    check = false;
-                    break;
-                }
-            }
-
-            if (check)
+            if (CompareCode(t, TransitionCodes.ICorner_Back_Right))
             {
                 return b.InCorner_Back_Right;
             }
 
-            for (int i = 0; i < 4; i++)
-            {
-                check = true;
-                if (t[i] != TransitionCodes.ICorner_Front_Left[i])
-                {
-                    check = false;
-                    break;
-                }
-            }
-
-            if (check)
+            if (CompareCode(t, TransitionCodes.ICorner_Front_Left))
             {
                 return b.InCorner_Front_Left;
             }
 
-            for (int i = 0; i < 4; i++)
-            {
-                check = true;
-                if (t[i] != TransitionCodes.ICorner_Front_Right[i])
-                {
-                    check = false;
-                    break;
-                }
-            }
-
-            if (check)
+            if (CompareCode(t, TransitionCodes.ICorner_Front_Right))
             {
                 return b.InCorner_Front_Right;
             }
 
-            return b.mainTile;
+            return b.MainTile;
         }
 
-        //InCorners
-        for (int i = 0; i < 4; i++)
-        {
-            check = true;
-            if(t[i] != TransitionCodes.OCorner_Back_Left[i])
-            {
-                check = false;
-                break;
-            }           
-        }
-
-        if(check)
+        //OCorners
+        if (CompareCode(t, TransitionCodes.OCorner_Back_Left))
         {
             return b.OutCorner_Back_Left;
         }
 
-        for (int i = 0; i < 4; i++)
-        {
-            check = true;
-            if (t[i] != TransitionCodes.OCorner_Back_Right[i])
-            {
-                check = false;
-                break;
-            }
-        }
-
-        if(check)
+        if (CompareCode(t, TransitionCodes.OCorner_Back_Right))
         {
             return b.OutCorner_Back_Right;
         }
 
-        for (int i = 0; i < 4; i++)
-        {
-            check = true;
-            if (t[i] != TransitionCodes.OCorner_Front_Left[i])
-            {
-                check = false;
-                break;
-            }
-        }
-
-        if(check)
+        if (CompareCode(t, TransitionCodes.OCorner_Front_Left))
         {
             return b.OutCorner_Front_Left;
         }
 
-        for (int i = 0; i < 4; i++)
-        {
-            check = true;
-            if (t[i] != TransitionCodes.OCorner_Front_Right[i])
-            {
-                check = false;
-                break;
-            }
-        }
-
-        if(check)
+        if (CompareCode(t, TransitionCodes.OCorner_Front_Right))
         {
             return b.OutCorner_Front_Right;
         }
 
         //Ledges
-        for (int i = 0; i < 4; i++)
-        {
-            check = true;
-            if (t[i] != TransitionCodes.Ledge_Back[i])
-            {
-                check = false;
-                break;
-            }
-        }
-
-        if (check)
+        if (CompareCode(t, TransitionCodes.Ledge_Back))
         {
             return b.Ledge_Back;
         }
 
-        for (int i = 0; i < 4; i++)
-        {
-            check = true;
-            if (t[i] != TransitionCodes.Ledge_Front[i])
-            {
-                check = false;
-                break;
-            }
-        }
-
-        if (check)
+        if (CompareCode(t, TransitionCodes.Ledge_Front))
         {
             return b.Ledge_Front;
         }
 
-        for (int i = 0; i < 4; i++)
-        {
-            check = true;
-            if (t[i] != TransitionCodes.Ledge_Left[i])
-            {
-                check = false;
-                break;
-            }
-        }
-
-        if (check)
+        if (CompareCode(t, TransitionCodes.Ledge_Left))
         {
             return b.Ledge_Left;
         }
 
-        for (int i = 0; i < 4; i++)
-        {
-            check = true;
-            if (t[i] != TransitionCodes.Ledge_Right[i])
-            {
-                check = false;
-                break;
-            }
-        }
-
-        if (check)
+        if (CompareCode(t, TransitionCodes.Ledge_Right))
         {
             return b.Ledge_Right;
         }
+        #endregion
 
-        return b.mainTile;
+        return b.MainTile;
     }
 
+    private static bool CompareCode(byte[] t, byte[] code)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (t[i] != code[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
