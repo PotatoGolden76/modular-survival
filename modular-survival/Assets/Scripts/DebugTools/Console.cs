@@ -1,28 +1,26 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 using System;
 
 public class Console : MonoBehaviour
 {
-    private static TMP_Text tmp;
+    private static TMP_Text textArea;
 
     void Start()
     {
-        tmp = gameObject.GetComponentInChildren<TMP_Text>();
+        textArea = gameObject.GetComponentInChildren<TMP_Text>();
       
         ClearConsole();
-        tmp.text = ">Beginning of session: " + System.DateTime.Now;
+        textArea.text = ">Beginning of session: " + DateTime.Now;
     }
 
     public static void ClearConsole()
     {
-        tmp.text = "";
+        textArea.text = "";
     }
 
     public static void Log(string s)
     {
-        tmp.text = tmp.text + "\n >" + s;
+        textArea.text = textArea.text + "\n >" + s;
     }
 }

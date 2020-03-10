@@ -34,7 +34,7 @@ public class Chunk
         GameObject.Destroy(ground_tilemap.gameObject);
     }
 
-    public static Vector2Int getChunkAt(int i, int j)
+    public static Vector2Int    getChunkAt(int i, int j)
     {
         float px;
         if (i >= 0)

@@ -12,6 +12,7 @@ public class Biome : ScriptableObject, IComparable
 
     [Header(header: "Biome Variables")]
     public string BiomeId;
+    public bool IsStatic;
 
     [Range(0f, 10f)]
     public float MinimumElevation;
@@ -38,7 +39,7 @@ public class Biome : ScriptableObject, IComparable
     public BiomeTile OutCorner_Front_Right = null;
 
     [Space]
-    public Tile tree;
+    public Tile tree = null;
 
     public int CompareTo(object obj)
     {

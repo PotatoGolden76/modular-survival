@@ -1,21 +1,19 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
 public class ContentLoader
 {
-    string path;
+    private string path;
 
     public ContentLoader(string pth)
     {
         path = pth;
 
-        init();
+        Initialise();
     }
 
-    private void init()
+    private void Initialise()
     {
         path += "/Modules";
 
@@ -34,12 +32,12 @@ public class ContentLoader
             }
         }
 
-        initSubfolder("Items");
-        initSubfolder("Chunks_Data");
+        AddSubfolder("Items");
+        AddSubfolder("Chunks_Data");
 
     }
 
-    private void initSubfolder(string s)
+    private void AddSubfolder(string s)
     {
         if (!Directory.Exists(Path.Combine(path, s)))
         {
@@ -58,15 +56,15 @@ public class ContentLoader
         }
     }
 
-    public void loadBiomes()
+    public void LoadBiomes()
     {
        foreach(Biome b in Resources.LoadAll("Biomes", typeof(Biome)))
         {
-            GameRegistry.addBiome(b);
+            GameRegistry.AddBiome(b);
         }
     }
 
-    public void loadItems()
+    public void LoadItems()
     {
         string[] files = Directory.GetFiles(path + "/Items", "*.json");
 
@@ -74,12 +72,8 @@ public class ContentLoader
         {
             using (StreamReader reader = File.OpenText(s))
             {
-                string str;
-                str = reader.ReadToEnd();
-
-                Item it = JsonUtility.FromJson<Item>(str);
-
-                GameRegistry.addItem(it);
+                string str = reader.ReadToEnd();
+                GameRegistry.AddItem(JsonUtility.FromJson<Item>(str));
             }
         }
     }

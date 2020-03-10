@@ -7,7 +7,13 @@ public class ChunkSorter : MonoBehaviour
 
     void Awake()
     {
-        gameObject.transform.position = transform.position + new Vector3(0, 0, Mathf.Clamp(gameObject.transform.position.y , -1f, 1f));
+        if(gameObject.transform.position.y > 0)
+        {
+            gameObject.transform.position = gameObject.transform.position + new Vector3(0, 0, -0.1f * gameObject.transform.position.y / Chunk.CHUNK_SIZE_Y);
+        } else
+        {
+            gameObject.transform.position = gameObject.transform.position + new Vector3(0, 0, 0.1f * gameObject.transform.position.y / Chunk.CHUNK_SIZE_Y);
+        }
         Destroy(this);
     }
 

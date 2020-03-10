@@ -10,7 +10,7 @@ public static class GameRegistry
     private static List<Biome> BiomeRegistry = new List<Biome>();
 
     #region ItemRegistry Methods
-    public static void addItem(Item it)
+    public static void AddItem(Item it)
     {
         if (!ItemRegistry.ContainsKey(it.ItemId))
         {
@@ -23,7 +23,7 @@ public static class GameRegistry
         }
     }
 
-    public static Item getItem(string id)
+    public static Item GetItem(string id)
     {
         if (ItemRegistry.ContainsKey(id))
         {
@@ -43,27 +43,19 @@ public static class GameRegistry
     #endregion
 
     #region BiomeRegistry Methods
-    public static void addBiome(Biome b)
+    public static void AddBiome(Biome b)
     {
         Console.Log("Added item: <i>" + b.BiomeId + "</i> to the registry");
         BiomeRegistry.Add(b);
         BiomeRegistry.Sort();
     }
 
-    public static Biome getBiome(string id)
+    public static Biome GetBiome(string id)
     {
         return BiomeRegistry.Find(b => b.BiomeId.Equals(id));
     }
 
-    public static void printBiomeList()
-    {
-        foreach (Biome b in BiomeRegistry)
-        {
-            Console.Log(b.BiomeId);
-        }
-    }
-
-    public static List<Biome> getBiomes()
+    public static List<Biome> GetBiomeList()
     {
         return BiomeRegistry;
     }

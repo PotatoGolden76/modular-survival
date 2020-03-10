@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -15,7 +13,7 @@ public static class Generator
     private static FastNoise TreeNoise;
     #endregion
 
-    private static readonly List<Vector2Int> directions = new List<Vector2Int>() { new Vector2Int(-1, 1),
+    private static readonly List<Vector2Int> transitionDirections = new List<Vector2Int>() { new Vector2Int(-1, 1),
                                                                          new Vector2Int(0, 1),
                                                                          new Vector2Int(1, 1),
                                                                          new Vector2Int(1, 0),
@@ -24,12 +22,14 @@ public static class Generator
                                                                          new Vector2Int(-1, -1),
                                                                          new Vector2Int(-1, 0)};
 
+    #region Initialisation
     private static void InitialiseNoise()
     {
         TerrainNoise = new FastNoise();
         TreeNoise = new FastNoise();
 
-        TerrainNoise.SetNoiseType(FastNoise.NoiseType.Simplex);
+        TerrainNoise.SetNoiseType(FastNoise.NoiseType.SimplexFractal);
+        TerrainNoise.SetFractalOctaves(4);
         TerrainNoise.SetSeed(seed);
         TerrainNoise.SetFrequency(biomeFrequency);
 
@@ -42,8 +42,8 @@ public static class Generator
     public static void Start()
     {
         InitialiseNoise();
-        Console.Log(GetTerrainTileAtCoords(new Vector2(-584, 196)).ToString());
     }
+    #endregion
 
     public static void GenerateChunk(ref Chunk c)
     {
@@ -62,6 +62,7 @@ public static class Generator
         }
     }
 
+    #region Noise
     public static float GetTreeNoiseValue(Vector2 v)
     {
         return TreeNoise.GetNoise(v.x, v.y);
@@ -71,12 +72,13 @@ public static class Generator
     {
         return (TerrainNoise.GetNoise(v.x, v.y) * 5) + 5;
     }
+    #endregion
 
     private static Biome GetBiomeAtCoords(Vector2 v)
     {
         float val = GetTerrainNoiseValue(v);
 
-        foreach (Biome b in GameRegistry.getBiomes())
+        foreach (Biome b in GameRegistry.GetBiomeList())
         {
             if (val >= b.MinimumElevation)
             {
@@ -104,11 +106,16 @@ public static class Generator
         Biome b = GetBiomeAtCoords(v);
         string Id = b.BiomeId;
 
+        if(b.IsStatic)
+        {
+            return b.MainTile;
+        }
+
         byte[] t = new byte[4];
 
         for (int i = 1; i < 8; i += 2)
         {
-            if (GetBiomeAtCoords(v + directions.ToArray()[i]).BiomeId.Equals(Id))
+            if (GetBiomeAtCoords(v + transitionDirections.ToArray()[i]).BiomeId.Equals(Id))
             {
                 t[i / 2] = 1;
             }
@@ -123,7 +130,7 @@ public static class Generator
         {
             for (int i = 0; i < 8; i += 2)
             {
-                if (GetBiomeAtCoords(v + directions.ToArray()[i]).BiomeId.Equals(Id))
+                if (GetBiomeAtCoords(v + transitionDirections.ToArray()[i]).BiomeId.Equals(Id))
                 {
                     t[i / 2] = 1;
                 }

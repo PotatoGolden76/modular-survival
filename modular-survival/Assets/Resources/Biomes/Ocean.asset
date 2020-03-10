@@ -13,25 +13,19 @@ MonoBehaviour:
   m_Name: Ocean
   m_EditorClassIdentifier: 
   BiomeId: biome_ocean
+  IsStatic: 1
   MinimumElevation: 0
   MainTile: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
-  Ledge_Front: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
-  Ledge_Back: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
-  Ledge_Left: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
-  Ledge_Right: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
-  InCorner_Back_Left: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf, type: 2}
-  InCorner_Back_Right: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
-    type: 2}
-  InCorner_Front_Left: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
-    type: 2}
-  InCorner_Front_Right: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
-    type: 2}
-  OutCorner_Back_Left: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
-    type: 2}
-  OutCorner_Back_Right: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
-    type: 2}
-  OutCorner_Front_Left: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
-    type: 2}
-  OutCorner_Front_Right: {fileID: 11400000, guid: ef7fe3c493ba59641adde9ffe51677cf,
-    type: 2}
+  Ledge_Front: {fileID: 0}
+  Ledge_Back: {fileID: 0}
+  Ledge_Left: {fileID: 0}
+  Ledge_Right: {fileID: 0}
+  InCorner_Back_Left: {fileID: 0}
+  InCorner_Back_Right: {fileID: 0}
+  InCorner_Front_Left: {fileID: 0}
+  InCorner_Front_Right: {fileID: 0}
+  OutCorner_Back_Left: {fileID: 0}
+  OutCorner_Back_Right: {fileID: 0}
+  OutCorner_Front_Left: {fileID: 0}
+  OutCorner_Front_Right: {fileID: 0}
   tree: {fileID: 0}

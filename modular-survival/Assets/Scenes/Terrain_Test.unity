@@ -911,7 +911,7 @@ PrefabInstance:
     - target: {fileID: 2791488020112062531, guid: 4ba4e15cea216714b948b9a5a360c619,
         type: 3}
       propertyPath: RenderDistance
-      value: 1
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2791488020112062556, guid: 4ba4e15cea216714b948b9a5a360c619,
         type: 3}
