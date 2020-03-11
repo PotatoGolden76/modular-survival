@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Grassland
   m_EditorClassIdentifier: 
   BiomeId: biome_grassland
+  IsStatic: 0
   MinimumElevation: 4.29
   MainTile: {fileID: 11400000, guid: 9669039f385c1f54bb1b71d6e08ad648, type: 2}
   Ledge_Front: {fileID: 11400000, guid: 9de558ef3eaaf0943820ff46f2ee445e, type: 2}
@@ -35,3 +36,10 @@ MonoBehaviour:
   OutCorner_Front_Right: {fileID: 11400000, guid: ed00238e52f669242bf0f40092bd3f00,
     type: 2}
   tree: {fileID: 11400000, guid: d13a72bdcaf155b48893bc9f5500c8a3, type: 2}
+  decorations:
+  - {fileID: 11400000, guid: f15710800aaf9cb449de6f825d4268fd, type: 2}
+  - {fileID: 11400000, guid: d22df91f4588ea94dbcaa80d97aef31a, type: 2}
+  - {fileID: 11400000, guid: a813decae9fc3dd44818b05c98c88b66, type: 2}
+  - {fileID: 11400000, guid: c62be413997de2a46b9de412db59f211, type: 2}
+  - {fileID: 11400000, guid: f19d7f75d380f3c4bb9811339aff204a, type: 2}
+  - {fileID: 11400000, guid: b62846b0f5960ec45911aeff8a164f4c, type: 2}

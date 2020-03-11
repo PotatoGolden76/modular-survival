@@ -5,13 +5,13 @@ using UnityEngine;
 public class ChunkManager : MonoBehaviour
 {
 
+    #region Objects
     public PlayerController player;
     public Grid grid;
 
     private Vector3 oldPlayerPos = new Vector3(0, 0, 0);
-
-
     public GameObject chunkPrefab;
+    #endregion
 
     private List<Chunk> loadedChunks = new List<Chunk>();
 
@@ -41,8 +41,6 @@ public class ChunkManager : MonoBehaviour
                         Chunk chk = new Chunk(itChunk.x, itChunk.y, chunkPrefab);
                         chk.ground_tilemap.transform.parent = grid.transform;
 
-                        //Debug.Log(itChunk);
-
                         Generator.GenerateChunk(ref chk);
 
                         loadedChunks.Add(chk);
@@ -50,16 +48,11 @@ public class ChunkManager : MonoBehaviour
                 }
             }
 
-            loadedChunks.RemoveAll(outsideRenderView);
-
-            //Debug.Log(Chunk.getChunkAt((int)player.transform.position.x, (int)player.transform.position.y));
+            loadedChunks.RemoveAll(OutsideRenderView);
         }
-
-        //loadedChunks.ForEach(c => Debug.Log(c.corner));
-        //Debug.Log("-----------");
     }
 
-    private bool outsideRenderView(Chunk c)
+    private bool OutsideRenderView(Chunk c)
     {
         float dis = Vector2Int.Distance(c.corner, new Vector2Int((int)player.transform.position.x, (int)player.transform.position.y));
         if (dis > Chunk.CHUNK_SIZE_X * RenderDistance * Mathf.Sqrt(2) * 2)
@@ -73,9 +66,8 @@ public class ChunkManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.white;
-        //Gizmos.DrawSphere(player.transform.position, (float)(Chunk.CHUNK_SIZE_X * RenderDistance * Mathf.Sqrt(2) * 1.5));
-        loadedChunks.ForEach(c => Gizmos.DrawLine(player.transform.position, new Vector3(c.corner.x, c.corner.y, 0)));
+        //Gizmos.color = Color.white;
+        //loadedChunks.ForEach(c => Gizmos.DrawLine(player.transform.position, new Vector3(c.corner.x, c.corner.y, 0)));
 
         Gizmos.color = Color.cyan;
         loadedChunks.ForEach(c =>

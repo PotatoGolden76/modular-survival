@@ -9,7 +9,7 @@ public class ChunkSorter : MonoBehaviour
     {
         if(gameObject.transform.position.y > 0)
         {
-            gameObject.transform.position = gameObject.transform.position + new Vector3(0, 0, -0.1f * gameObject.transform.position.y / Chunk.CHUNK_SIZE_Y);
+            gameObject.transform.position = gameObject.transform.position + new Vector3(0, 0, 0.1f * gameObject.transform.position.y / Chunk.CHUNK_SIZE_Y);
         } else
         {
             gameObject.transform.position = gameObject.transform.position + new Vector3(0, 0, 0.1f * gameObject.transform.position.y / Chunk.CHUNK_SIZE_Y);

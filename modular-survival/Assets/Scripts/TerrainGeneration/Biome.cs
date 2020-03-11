@@ -18,28 +18,29 @@ public class Biome : ScriptableObject, IComparable
     public float MinimumElevation;
 
     [Header(header: "Biome Tiles")]
-    public BiomeTile MainTile;
+    public TerrainTile MainTile;
 
     [Space]
-    public BiomeTile Ledge_Front = null;
-    public BiomeTile Ledge_Back = null;
-    public BiomeTile Ledge_Left = null;
-    public BiomeTile Ledge_Right = null;
+    public TerrainTile Ledge_Front = null;
+    public TerrainTile Ledge_Back = null;
+    public TerrainTile Ledge_Left = null;
+    public TerrainTile Ledge_Right = null;
 
     [Space]
-    public BiomeTile InCorner_Back_Left = null;
-    public BiomeTile InCorner_Back_Right = null;
-    public BiomeTile InCorner_Front_Left = null;
-    public BiomeTile InCorner_Front_Right = null;
+    public TerrainTile InCorner_Back_Left = null;
+    public TerrainTile InCorner_Back_Right = null;
+    public TerrainTile InCorner_Front_Left = null;
+    public TerrainTile InCorner_Front_Right = null;
 
     [Space]
-    public BiomeTile OutCorner_Back_Left = null;
-    public BiomeTile OutCorner_Back_Right = null;
-    public BiomeTile OutCorner_Front_Left = null;
-    public BiomeTile OutCorner_Front_Right = null;
+    public TerrainTile OutCorner_Back_Left = null;
+    public TerrainTile OutCorner_Back_Right = null;
+    public TerrainTile OutCorner_Front_Left = null;
+    public TerrainTile OutCorner_Front_Right = null;
 
     [Space]
     public Tile tree = null;
+    public List<BiomeDecoration> decorations = new List<BiomeDecoration>();
 
     public int CompareTo(object obj)
     {

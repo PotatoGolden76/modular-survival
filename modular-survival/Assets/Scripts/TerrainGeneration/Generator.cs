@@ -101,7 +101,7 @@ public static class Generator
         return null;
     }
 
-    private static BiomeTile GetTerrainTileAtCoords(Vector2 v)
+    private static TerrainTile GetTerrainTileAtCoords(Vector2 v)
     {
         Biome b = GetBiomeAtCoords(v);
         string Id = b.BiomeId;
