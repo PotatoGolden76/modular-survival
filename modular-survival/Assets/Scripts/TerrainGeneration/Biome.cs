@@ -16,6 +16,8 @@ public class Biome : ScriptableObject, IComparable
 
     [Range(0f, 10f)]
     public float MinimumElevation;
+    [Range(0f, 10f)]
+    public float TreeDensity;
 
     [Header(header: "Biome Tiles")]
     public TerrainTile MainTile;

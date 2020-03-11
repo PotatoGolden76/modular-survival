@@ -7,7 +7,7 @@ public class Chunk
 {
     public const int CHUNK_SIZE_X = 16, CHUNK_SIZE_Y = 16;
 
-    public Tilemap ground_tilemap, object_tilemap;
+    public Tilemap ground_tilemap, object_tilemap, decoration_tilemap;
     public Vector2Int corner;
 
     public Chunk(int i, int j, GameObject chunkPrefab)
@@ -23,6 +23,7 @@ public class Chunk
         } else
         {
             object_tilemap = maps[1];
+            decoration_tilemap = maps[2];
         }
         corner.x = i;
         corner.y = j;

@@ -53,11 +53,13 @@ public static class Generator
             {
                 c.ground_tilemap.SetTile(new Vector3Int(i, j, 0), GetTerrainTileAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)));
 
-                if (c.ground_tilemap.GetTile(new Vector3Int(i, j, 0)).Equals(GetBiomeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)).MainTile))
+                if (!GetBiomeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)).IsStatic)
                 {
-                   c.object_tilemap.SetTile(new Vector3Int(i, j, 0), GetTreeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)));
+                    if (c.ground_tilemap.GetTile(new Vector3Int(i, j, 0)).Equals(GetBiomeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)).MainTile))
+                    {
+                        SetDecoAtCoords(new Vector2(i + c.corner.x, j + c.corner.y), ref c);
+                    }
                 }
-
             }
         }
     }
@@ -65,13 +67,14 @@ public static class Generator
     #region Noise
     public static float GetTreeNoiseValue(Vector2 v)
     {
-        return TreeNoise.GetNoise(v.x, v.y);
+        return (TreeNoise.GetNoise(v.x, v.y) * 5) + 5;
     }
 
     private static float GetTerrainNoiseValue(Vector2 v)
     {
         return (TerrainNoise.GetNoise(v.x, v.y) * 5) + 5;
     }
+
     #endregion
 
     private static Biome GetBiomeAtCoords(Vector2 v)
@@ -90,15 +93,27 @@ public static class Generator
         return null;
     }
 
-    private static Tile GetTreeAtCoords(Vector2 v)
+    private static void SetDecoAtCoords(Vector2 v, ref Chunk c)
     {
-        float val = GetTreeNoiseValue(v);
-        if (val > 0)
-        {
-            return GetBiomeAtCoords(v).tree;
-        }
+        float treeVal = GetTreeNoiseValue(v);
+        float decoVal;
 
-        return null;
+        Biome b = GetBiomeAtCoords(v);
+        if (treeVal >= 10f - b.TreeDensity)
+        {
+            c.object_tilemap.SetTile(new Vector3Int((int)v.x - c.corner.x, (int)v.y - c.corner.y, 0), b.tree);
+        }
+        else
+        {
+            decoVal = Random.Range(0, b.decorations.Count*2);
+            for(int i = 0; i < b.decorations.Count; i++)
+            {
+                if(decoVal >=i && decoVal <= i+1)
+                {
+                    c.decoration_tilemap.SetTile(new Vector3Int((int)v.x - c.corner.x, (int)v.y - c.corner.y, 0), b.decorations.ToArray()[i]);
+                }
+            }          
+        }
     }
 
     private static TerrainTile GetTerrainTileAtCoords(Vector2 v)
@@ -106,7 +121,7 @@ public static class Generator
         Biome b = GetBiomeAtCoords(v);
         string Id = b.BiomeId;
 
-        if(b.IsStatic)
+        if (b.IsStatic)
         {
             return b.MainTile;
         }
