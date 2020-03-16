@@ -5,9 +5,9 @@ using UnityEngine;
 
 public static class GameRegistry
 {
-    private static Dictionary<string, Item> ItemRegistry = new Dictionary<string, Item>();
+    public static Dictionary<string, Item> ItemRegistry = new Dictionary<string, Item>();
 
-    private static List<Biome> BiomeRegistry = new List<Biome>();
+    public static List<Biome> BiomeRegistry = new List<Biome>();
 
     #region ItemRegistry Methods
     public static void AddItem(Item it)

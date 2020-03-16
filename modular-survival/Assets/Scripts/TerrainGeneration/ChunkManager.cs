@@ -26,6 +26,12 @@ public class ChunkManager : MonoBehaviour
         Generator.Start();
     }
 
+    #region General purpose variables
+    private Vector2Int itChunk;
+    private Chunk chk = null;
+
+    private float distanceFromPlayer = 0f;
+    #endregion
     private void Update()
     {
         if (!player.transform.position.Equals(oldPlayerPos))
@@ -35,10 +41,10 @@ public class ChunkManager : MonoBehaviour
             {
                 for (int j = (int)player.transform.position.y - (RenderDistance * Chunk.CHUNK_SIZE_Y); j <= (int)player.transform.position.y + (RenderDistance * Chunk.CHUNK_SIZE_Y); j = j + Chunk.CHUNK_SIZE_Y)
                 {
-                    Vector2Int itChunk = Chunk.getChunkAt(i, j);
+                    itChunk = Chunk.getChunkAt(i, j);
                     if (!loadedChunks.Exists(c => (c.corner.x == itChunk.x && c.corner.y == itChunk.y)))
                     {
-                        Chunk chk = new Chunk(itChunk.x, itChunk.y, chunkPrefab);
+                        chk = new Chunk(itChunk.x, itChunk.y, chunkPrefab);
                         chk.ground_tilemap.transform.parent = grid.transform;
 
                         Generator.GenerateChunk(ref chk);
@@ -54,8 +60,8 @@ public class ChunkManager : MonoBehaviour
 
     private bool OutsideRenderView(Chunk c)
     {
-        float dis = Vector2Int.Distance(c.corner, new Vector2Int((int)player.transform.position.x, (int)player.transform.position.y));
-        if (dis > Chunk.CHUNK_SIZE_X * RenderDistance * Mathf.Sqrt(2) * 2)
+        distanceFromPlayer = Vector2Int.Distance(c.corner, new Vector2Int((int)player.transform.position.x, (int)player.transform.position.y));
+        if (distanceFromPlayer > Chunk.CHUNK_SIZE_X * RenderDistance * Mathf.Sqrt(2) * 2)
         {
             c.unloadChunk();
             return true;

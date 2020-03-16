@@ -45,23 +45,46 @@ public static class Generator
     }
     #endregion
 
+    #region Generation Variables
+    private static Biome b = null;
+    private static float terrainValue = 0f;
+    private static float treeValue = 0f;
+    private static float decoValue = 0f;
+
+    private static TileBase[] terrainTiles = new TileBase[256];
+    private static TileBase[] decoTiles = new TileBase[256];
+    private static TileBase[] treeTiles = new TileBase[256];
+
+    private static Vector3Int[] positions = new Vector3Int[256];
+
+    private static byte[] variationCode = null;
+    #endregion
     public static void GenerateChunk(ref Chunk c)
     {
-        for (int i = c.ground_tilemap.origin.x; i < c.ground_tilemap.origin.x + Chunk.CHUNK_SIZE_X; i++)
-        {
-            for (int j = c.ground_tilemap.origin.y; j < c.ground_tilemap.origin.y + Chunk.CHUNK_SIZE_Y; j++)
-            {
-                c.ground_tilemap.SetTile(new Vector3Int(i, j, 0), GetTerrainTileAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)));
+        terrainTiles = new TileBase[256];
+        decoTiles = new TileBase[256];
+        treeTiles = new TileBase[256];
 
-                if (!GetBiomeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)).IsStatic)
+        for (int i = 0; i < Chunk.CHUNK_SIZE_X*Chunk.CHUNK_SIZE_Y; i++)
+        {
+            positions[i] = new Vector3Int(i / Chunk.CHUNK_SIZE_X, i % Chunk.CHUNK_SIZE_Y, 0);
+
+            b = GetBiomeAtCoords(new Vector2((i / Chunk.CHUNK_SIZE_X) + c.corner.x, (i % Chunk.CHUNK_SIZE_X) + c.corner.y));
+            terrainTiles[i] = GetTerrainTileAtCoords(new Vector2((i / Chunk.CHUNK_SIZE_X) + c.corner.x, (i % Chunk.CHUNK_SIZE_X) + c.corner.y));
+
+            if (!b.IsStatic)
+            {
+                if (terrainTiles[i].Equals(b.MainTile))
                 {
-                    if (c.ground_tilemap.GetTile(new Vector3Int(i, j, 0)).Equals(GetBiomeAtCoords(new Vector2(i + c.corner.x, j + c.corner.y)).MainTile))
-                    {
-                        SetDecoAtCoords(new Vector2(i + c.corner.x, j + c.corner.y), ref c);
-                    }
+                    SetDecoAtCoords(new Vector2Int((i / Chunk.CHUNK_SIZE_X) + c.corner.x, (i % Chunk.CHUNK_SIZE_X) + c.corner.y), i);
                 }
             }
+
         }
+
+        c.ground_tilemap.SetTiles(positions, terrainTiles);
+        c.decoration_tilemap.SetTiles(positions, decoTiles);
+        c.object_tilemap.SetTiles(positions, treeTiles);
     }
 
     #region Noise
@@ -79,99 +102,94 @@ public static class Generator
 
     private static Biome GetBiomeAtCoords(Vector2 v)
     {
-        float val = GetTerrainNoiseValue(v);
+        terrainValue = GetTerrainNoiseValue(v);
 
-        foreach (Biome b in GameRegistry.GetBiomeList())
+        for (int i = 0; i < GameRegistry.BiomeRegistry.Count; i++)
         {
-            if (val >= b.MinimumElevation)
+            if (terrainValue >= GameRegistry.BiomeRegistry[i].MinimumElevation)
             {
-                return b;
+                return GameRegistry.BiomeRegistry[i];
             }
         }
 
-        Console.Log("No biome at elevation: " + val);
+        Console.Log("No biome at elevation: " + terrainValue);
         return null;
     }
 
-    private static void SetDecoAtCoords(Vector2 v, ref Chunk c)
+    private static void SetDecoAtCoords(Vector2Int v, int index)
     {
-        float treeVal = GetTreeNoiseValue(v);
-        float decoVal;
+        treeValue = GetTreeNoiseValue(v);
 
-        Biome b = GetBiomeAtCoords(v);
-        if (treeVal >= 10f - b.TreeDensity)
+        if (treeValue >= 10f - b.TreeDensity)
         {
-            c.object_tilemap.SetTile(new Vector3Int((int)v.x - c.corner.x, (int)v.y - c.corner.y, 0), b.tree);
+            treeTiles[index] = b.tree;
         }
         else
         {
-            decoVal = Random.Range(0, b.decorations.Count*2);
-            for(int i = 0; i < b.decorations.Count; i++)
+            decoValue = Random.Range(0, b.decorations.Count * 2);
+            for (int i = 0; i < b.decorations.Count; i++)
             {
-                if(decoVal >=i && decoVal <= i+1)
+                if (decoValue >= i && decoValue <= i + 1)
                 {
-                    c.decoration_tilemap.SetTile(new Vector3Int((int)v.x - c.corner.x, (int)v.y - c.corner.y, 0), b.decorations.ToArray()[i]);
+                    decoTiles[index] = b.decorations.ToArray()[i];
                 }
-            }          
+            }
         }
     }
 
     private static TerrainTile GetTerrainTileAtCoords(Vector2 v)
     {
-        Biome b = GetBiomeAtCoords(v);
-        string Id = b.BiomeId;
-
         if (b.IsStatic)
         {
             return b.MainTile;
         }
 
-        byte[] t = new byte[4];
+        variationCode = new byte[4];
 
         for (int i = 1; i < 8; i += 2)
         {
-            if (GetBiomeAtCoords(v + transitionDirections.ToArray()[i]).BiomeId.Equals(Id))
+            if (GetBiomeAtCoords(v + transitionDirections.ToArray()[i]).BiomeId.Equals(b.BiomeId))
             {
-                t[i / 2] = 1;
+                variationCode[i / 2] = 1;
             }
             else
             {
-                t[i / 2] = 0;
+                variationCode[i / 2] = 0;
             }
         }
 
         #region Code checking
-        if (CompareCode(t, TransitionCodes.Fill))
+        if (CompareCode(variationCode, TransitionCodes.Fill))
         {
             for (int i = 0; i < 8; i += 2)
             {
-                if (GetBiomeAtCoords(v + transitionDirections.ToArray()[i]).BiomeId.Equals(Id))
+                if (GetBiomeAtCoords(v + transitionDirections.ToArray()[i]).BiomeId.Equals(b.BiomeId))
                 {
-                    t[i / 2] = 1;
+                    variationCode[i / 2] = 1;
                 }
                 else
                 {
-                    t[i / 2] = 0;
+                    variationCode[i / 2] = 0;
                 }
             }
 
             //In Corners   
-            if (CompareCode(t, TransitionCodes.ICorner_Back_Left))
+            if (CompareCode(variationCode, TransitionCodes.ICorner_Back_Left))
             {
                 return b.InCorner_Back_Left;
             }
 
-            if (CompareCode(t, TransitionCodes.ICorner_Back_Right))
+            if (CompareCode(variationCode, TransitionCodes.ICorner_Back_Right))
             {
                 return b.InCorner_Back_Right;
             }
 
-            if (CompareCode(t, TransitionCodes.ICorner_Front_Left))
+            if (CompareCode(variationCode, TransitionCodes.ICorner_Front_Left))
             {
                 return b.InCorner_Front_Left;
             }
 
-            if (CompareCode(t, TransitionCodes.ICorner_Front_Right))
+            if (CompareCode(variationCode, TransitionCodes.ICorner_Front_Right))
             {
                 return b.InCorner_Front_Right;
             }
@@ -180,43 +198,43 @@ public static class Generator
         }
 
         //OCorners
-        if (CompareCode(t, TransitionCodes.OCorner_Back_Left))
+        if (CompareCode(variationCode, TransitionCodes.OCorner_Back_Left))
         {
             return b.OutCorner_Back_Left;
         }
 
-        if (CompareCode(t, TransitionCodes.OCorner_Back_Right))
+        if (CompareCode(variationCode, TransitionCodes.OCorner_Back_Right))
         {
             return b.OutCorner_Back_Right;
         }
 
-        if (CompareCode(t, TransitionCodes.OCorner_Front_Left))
+        if (CompareCode(variationCode, TransitionCodes.OCorner_Front_Left))
         {
             return b.OutCorner_Front_Left;
         }
 
-        if (CompareCode(t, TransitionCodes.OCorner_Front_Right))
+        if (CompareCode(variationCode, TransitionCodes.OCorner_Front_Right))
         {
             return b.OutCorner_Front_Right;
         }
 
         //Ledges
-        if (CompareCode(t, TransitionCodes.Ledge_Back))
+        if (CompareCode(variationCode, TransitionCodes.Ledge_Back))
         {
             return b.Ledge_Back;
         }
 
-        if (CompareCode(t, TransitionCodes.Ledge_Front))
+        if (CompareCode(variationCode, TransitionCodes.Ledge_Front))
         {
             return b.Ledge_Front;
         }
 
-        if (CompareCode(t, TransitionCodes.Ledge_Left))
+        if (CompareCode(variationCode, TransitionCodes.Ledge_Left))
         {
             return b.Ledge_Left;
         }
 
-        if (CompareCode(t, TransitionCodes.Ledge_Right))
+        if (CompareCode(variationCode, TransitionCodes.Ledge_Right))
         {
             return b.Ledge_Right;
         }

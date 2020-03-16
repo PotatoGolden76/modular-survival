@@ -14,7 +14,7 @@ public class Chunk
     {
         ground_tilemap = GameObject.Instantiate(chunkPrefab, new Vector3(i, j, 0), Quaternion.identity).GetComponent<Tilemap>();
 
-        Tilemap[] maps = new Tilemap[2];
+        Tilemap[] maps = new Tilemap[3];
         maps = ground_tilemap.gameObject.GetComponentsInChildren<Tilemap>();
 
         if(maps[0] != ground_tilemap)
