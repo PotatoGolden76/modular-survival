@@ -9,65 +9,79 @@ public class ChunkManager : MonoBehaviour
     public PlayerController player;
     public Grid grid;
 
-    private Vector3 oldPlayerPos = new Vector3(0, 0, 0);
+    private Vector2Int oldPlayerChunk = Vector2Int.zero;
     public GameObject chunkPrefab;
     #endregion
 
-    private List<Chunk> loadedChunks = new List<Chunk>();
+    private List<Chunk> chunkPool = new List<Chunk>();
 
     [Range(1, 100)]
     public int RenderDistance = 2;
+
+    #region General purpose variables
+    private Chunk chk = null;
+    private bool start = true;
+    private float distanceFromPlayer;
+    private Vector2Int currentChunk;
+    #endregion
 
     private void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         grid = GameObject.FindGameObjectWithTag("Grid").GetComponent<Grid>();
 
+        //oldPlayerChunk = Chunk.getChunkAt(Mathf.FloorToInt(player.transform.position.x), Mathf.FloorToInt(player.transform.position.y));
+
         Generator.Start();
+
+        //Init Chunk pool
+        for (int i = 0; i < Mathf.Pow((RenderDistance * 2 + 1), 2); i++)
+        {
+            chk = new Chunk(0, 0, chunkPrefab);
+            chk.ground_tilemap.transform.parent = grid.transform;
+            chk.unloadChunk();
+
+            chunkPool.Add(chk);
+        }
+        start = true;
     }
 
-    #region General purpose variables
-    private Vector2Int itChunk;
-    private Chunk chk = null;
-
-    private float distanceFromPlayer = 0f;
-    #endregion
     private void Update()
     {
-        if (!player.transform.position.Equals(oldPlayerPos))
-        {
-            oldPlayerPos = player.transform.position;
-            for (int i = (int)player.transform.position.x - (RenderDistance * Chunk.CHUNK_SIZE_X); i <= (int)player.transform.position.x + (RenderDistance * Chunk.CHUNK_SIZE_X); i = i + Chunk.CHUNK_SIZE_X)
+        currentChunk = Chunk.getChunkAt(Mathf.FloorToInt(player.transform.position.x), Mathf.FloorToInt(player.transform.position.y));
+        if (!oldPlayerChunk.Equals(currentChunk) || start) { 
+            foreach (Chunk c in chunkPool)
             {
-                for (int j = (int)player.transform.position.y - (RenderDistance * Chunk.CHUNK_SIZE_Y); j <= (int)player.transform.position.y + (RenderDistance * Chunk.CHUNK_SIZE_Y); j = j + Chunk.CHUNK_SIZE_Y)
+                OutsideRenderView(c);
+            }
+
+            for (int i = currentChunk.x - (RenderDistance * Chunk.CHUNK_SIZE_X); i <= currentChunk.x + (RenderDistance * Chunk.CHUNK_SIZE_X); i = i + Chunk.CHUNK_SIZE_X)
+            {
+                for (int j = currentChunk.y - (RenderDistance * Chunk.CHUNK_SIZE_Y); j <= currentChunk.y + (RenderDistance * Chunk.CHUNK_SIZE_Y); j = j + Chunk.CHUNK_SIZE_Y)
                 {
-                    itChunk = Chunk.getChunkAt(i, j);
-                    if (!loadedChunks.Exists(c => (c.corner.x == itChunk.x && c.corner.y == itChunk.y)))
+                    if (!chunkPool.Exists(c => c.corner.x == i && c.corner.y == j && c.active))
                     {
-                        chk = new Chunk(itChunk.x, itChunk.y, chunkPrefab);
-                        chk.ground_tilemap.transform.parent = grid.transform;
+                        chk = chunkPool.Find(c => c.ground_tilemap.gameObject.activeSelf == false);
 
+                        chk.setPositionAndActivate(Chunk.getChunkAt(i, j));
                         Generator.GenerateChunk(ref chk);
-
-                        loadedChunks.Add(chk);
                     }
                 }
             }
 
-            loadedChunks.RemoveAll(OutsideRenderView);
+            oldPlayerChunk = currentChunk;
         }
+
+        start = false;
     }
 
-    private bool OutsideRenderView(Chunk c)
+    private void OutsideRenderView(Chunk c)
     {
-        distanceFromPlayer = Vector2Int.Distance(c.corner, new Vector2Int((int)player.transform.position.x, (int)player.transform.position.y));
-        if (distanceFromPlayer > Chunk.CHUNK_SIZE_X * RenderDistance * Mathf.Sqrt(2) * 2)
+        distanceFromPlayer = Vector2Int.Distance(c.corner, currentChunk);
+        if (distanceFromPlayer > Chunk.CHUNK_SIZE_X * RenderDistance)
         {
             c.unloadChunk();
-            return true;
         }
-
-        return false;
     }
 
     private void OnDrawGizmos()
@@ -76,7 +90,7 @@ public class ChunkManager : MonoBehaviour
         //loadedChunks.ForEach(c => Gizmos.DrawLine(player.transform.position, new Vector3(c.corner.x, c.corner.y, 0)));
 
         Gizmos.color = Color.cyan;
-        loadedChunks.ForEach(c =>
+        chunkPool.ForEach(c =>
         {
             Gizmos.DrawLine(new Vector3(c.corner.x, c.corner.y, 0), new Vector3(c.corner.x + Chunk.CHUNK_SIZE_X, c.corner.y, 0));
             Gizmos.DrawLine(new Vector3(c.corner.x, c.corner.y, 0), new Vector3(c.corner.x, c.corner.y + Chunk.CHUNK_SIZE_Y, 0));

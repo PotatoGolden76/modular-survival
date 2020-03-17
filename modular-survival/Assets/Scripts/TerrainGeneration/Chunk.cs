@@ -10,9 +10,13 @@ public class Chunk
     public Tilemap ground_tilemap, object_tilemap, decoration_tilemap;
     public Vector2Int corner;
 
+    public bool active = false;
+
     public Chunk(int i, int j, GameObject chunkPrefab)
     {
+        active = true;
         ground_tilemap = GameObject.Instantiate(chunkPrefab, new Vector3(i, j, 0), Quaternion.identity).GetComponent<Tilemap>();
+        ground_tilemap.gameObject.SetActive(active);
 
         Tilemap[] maps = new Tilemap[3];
         maps = ground_tilemap.gameObject.GetComponentsInChildren<Tilemap>();
@@ -29,13 +33,22 @@ public class Chunk
         corner.y = j;
     }
 
+    public void setPositionAndActivate(Vector2Int v)
+    {
+        ground_tilemap.transform.position = new Vector3(v.x, v.y, 0);
+        corner = new Vector2Int(v.x, v.y);
+        active = true;
+        ground_tilemap.gameObject.SetActive(true);
+    }
+
 
     public void unloadChunk()
     {
-        GameObject.Destroy(ground_tilemap.gameObject);
+        active = false;
+        ground_tilemap.gameObject.SetActive(false);
     }
 
-    public static Vector2Int    getChunkAt(int i, int j)
+    public static Vector2Int getChunkAt(int i, int j)
     {
         float px;
         if (i >= 0)
