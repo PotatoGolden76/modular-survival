@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Linq;
 
 public static class Generator
 {
@@ -10,7 +13,7 @@ public static class Generator
     private static int seed = 23127108;
 
     private static FastNoise TerrainNoise;
-    private static FastNoise TreeNoise;
+    private static FastNoise ObjectNoise;
     #endregion
 
     private static readonly List<Vector2Int> transitionDirections = new List<Vector2Int>() { new Vector2Int(-1, 1),
@@ -26,142 +29,145 @@ public static class Generator
     private static void InitialiseNoise()
     {
         TerrainNoise = new FastNoise();
-        TreeNoise = new FastNoise();
+        ObjectNoise = new FastNoise();
 
         TerrainNoise.SetNoiseType(FastNoise.NoiseType.SimplexFractal);
         TerrainNoise.SetFractalOctaves(4);
         TerrainNoise.SetSeed(seed);
         TerrainNoise.SetFrequency(biomeFrequency);
 
-        TreeNoise.SetNoiseType(FastNoise.NoiseType.SimplexFractal);
-        TreeNoise.SetFractalOctaves(7);
-        TreeNoise.SetSeed(seed);
-        TreeNoise.SetFrequency(treeFrequency);
+        ObjectNoise.SetNoiseType(FastNoise.NoiseType.SimplexFractal);
+        ObjectNoise.SetFractalOctaves(7);
+        ObjectNoise.SetSeed(seed);
+        ObjectNoise.SetFrequency(treeFrequency);
     }
 
     public static void Start()
     {
         InitialiseNoise();
+
+        for (int i = 0; i < Chunk.CHUNK_SIZE_X * Chunk.CHUNK_SIZE_Y; i++)
+        {
+            positions[i] = new Vector3Int(i / Chunk.CHUNK_SIZE_X, i % Chunk.CHUNK_SIZE_Y, 0);
+        }
     }
     #endregion
 
-    #region Generation Variables
-    private static Biome b = null;
-    private static float terrainValue = 0f;
-    private static float treeValue = 0f;
-    private static float decoValue = 0f;
+    private static TileBase[] terrainTiles = new TileBase[Chunk.CHUNK_SIZE_X * Chunk.CHUNK_SIZE_Y];
+    private static TileBase[] objectTiles = new TileBase[Chunk.CHUNK_SIZE_X * Chunk.CHUNK_SIZE_Y];
 
-    private static TileBase[] terrainTiles = new TileBase[256];
-    private static TileBase[] decoTiles = new TileBase[256];
-    private static TileBase[] treeTiles = new TileBase[256];
+    private static TileGenerator[] workers = new TileGenerator[Chunk.CHUNK_SIZE_X * Chunk.CHUNK_SIZE_Y];
+    private static Task[] tasks;
+    private static Vector2 coord;
 
-    private static Vector3Int[] positions = new Vector3Int[256];
+    private static int workerNumber = Chunk.CHUNK_SIZE_X * Chunk.CHUNK_SIZE_Y;
 
-    private static byte[] variationCode = null;
-    #endregion
+    private static Vector3Int[] positions = new Vector3Int[Chunk.CHUNK_SIZE_X * Chunk.CHUNK_SIZE_Y];
+
     public static void GenerateChunk(ref Chunk c)
     {
-        terrainTiles = new TileBase[256];
-        decoTiles = new TileBase[256];
-        treeTiles = new TileBase[256];
+        terrainTiles = new TileBase[Chunk.CHUNK_SIZE_X * Chunk.CHUNK_SIZE_Y];
+        objectTiles = new TileBase[Chunk.CHUNK_SIZE_X * Chunk.CHUNK_SIZE_Y];
 
-        for (int i = 0; i < Chunk.CHUNK_SIZE_X*Chunk.CHUNK_SIZE_Y; i++)
+        workerNumber = Chunk.CHUNK_SIZE_X * Chunk.CHUNK_SIZE_Y;
+
+        coord = new Vector2( c.corner.x,  c.corner.y);
+
+        tasks = Enumerable.Range(0, workerNumber).Select(i => Task.Factory.StartNew(() => {
+            workers[i] = new TileGenerator(coord + new Vector2((i / Chunk.CHUNK_SIZE_X), (i % Chunk.CHUNK_SIZE_X)));
+            workers[i].Callback(); })
+        ).ToArray();
+
+        Task.WaitAll(tasks);
+        Debug.Log("done generating chunk tiles for: " + c.corner);
+
+        for (int i = 0; i < Chunk.CHUNK_SIZE_X * Chunk.CHUNK_SIZE_Y; i++)
         {
-            positions[i] = new Vector3Int(i / Chunk.CHUNK_SIZE_X, i % Chunk.CHUNK_SIZE_Y, 0);
-
-            b = GetBiomeAtCoords(new Vector2((i / Chunk.CHUNK_SIZE_X) + c.corner.x, (i % Chunk.CHUNK_SIZE_X) + c.corner.y));
-            terrainTiles[i] = GetTerrainTileAtCoords(new Vector2((i / Chunk.CHUNK_SIZE_X) + c.corner.x, (i % Chunk.CHUNK_SIZE_X) + c.corner.y));
-
-            if (!b.IsStatic)
-            {
-                if (terrainTiles[i].Equals(b.MainTile))
-                {
-                    SetDecoAtCoords(new Vector2Int((i / Chunk.CHUNK_SIZE_X) + c.corner.x, (i % Chunk.CHUNK_SIZE_X) + c.corner.y), i);
-                }
-            }
-
+            terrainTiles[i] = workers[i].TerrainTile;
+            objectTiles[i] = workers[i].ObjectTile;
         }
 
         c.ground_tilemap.SetTiles(positions, terrainTiles);
-        c.decoration_tilemap.SetTiles(positions, decoTiles);
-        c.object_tilemap.SetTiles(positions, treeTiles);
+        c.object_tilemap.SetTiles(positions, objectTiles);
     }
 
-    #region Noise
-    public static float GetTreeNoiseValue(Vector2 v)
+
+    //Generator Worker Class
+    public class TileGenerator
     {
-        return (TreeNoise.GetNoise(v.x, v.y) * 5) + 5;
-    }
+        private Vector2 position;
 
-    private static float GetTerrainNoiseValue(Vector2 v)
-    {
-        return (TerrainNoise.GetNoise(v.x, v.y) * 5) + 5;
-    }
+        public TileBase TerrainTile { get; private set; }
+        public TileBase ObjectTile { get; private set; }
 
-    #endregion
+        #region Generation Variables
+        private Biome b = null;
 
-    private static Biome GetBiomeAtCoords(Vector2 v)
-    {
-        terrainValue = GetTerrainNoiseValue(v);
+        private float terrainNoiseValue = 0f;
+        private float ObjectNoiseValue = 0f;
 
-        for (int i = 0; i < GameRegistry.BiomeRegistry.Count; i++)
+        private byte[] variationCode = null;
+        #endregion
+
+        public TileGenerator(Vector2 pos)
         {
-            if (terrainValue >= GameRegistry.BiomeRegistry[i].MinimumElevation)
-            {
-                return GameRegistry.BiomeRegistry[i];
-            }
+            position = pos;
         }
 
-        Console.Log("No biome at elevation: " + terrainValue);
-        return null;
-    }
-
-    private static void SetDecoAtCoords(Vector2Int v, int index)
-    {
-        treeValue = GetTreeNoiseValue(v);
-
-        if (treeValue >= 10f - b.TreeDensity)
+        public void Callback()
         {
-            treeTiles[index] = b.tree;
-        }
-        else
-        {
-            decoValue = Random.Range(0, b.decorations.Count * 2);
-            for (int i = 0; i < b.decorations.Count; i++)
+            b = GetBiomeAtCoords(position);
+
+            TerrainTile = GetTerrainTileAtCoords(position);
+
+            if (!b.IsStatic)
             {
-                if (decoValue >= i && decoValue <= i + 1)
+                if (TerrainTile.Equals(b.MainTile))
                 {
-                    decoTiles[index] = b.decorations.ToArray()[i];
+                    ObjectTile = GetObjectTileAtCoords(position);
                 }
             }
         }
-    }
 
-    private static TerrainTile GetTerrainTileAtCoords(Vector2 v)
-    {
-        if (b.IsStatic)
+        #region Noise
+        public float GetObjectNoiseValue(Vector2 v)
         {
-            return b.MainTile;
+            return (Generator.ObjectNoise.GetNoise(v.x, v.y) * 5) + 5;
         }
 
-        variationCode = new byte[4];
-
-        for (int i = 1; i < 8; i += 2)
+        private float GetTerrainNoiseValue(Vector2 v)
         {
-            if (GetBiomeAtCoords(v + transitionDirections.ToArray()[i]).BiomeId.Equals(b.BiomeId))
-            {
-                variationCode[i / 2] = 1;
-            }
-            else
-            {
-                variationCode[i / 2] = 0;
-            }
+            return (Generator.TerrainNoise.GetNoise(v.x, v.y) * 5) + 5;
         }
 
-        #region Code checking
-        if (CompareCode(variationCode, TransitionCodes.Fill))
+        #endregion
+
+        private Biome GetBiomeAtCoords(Vector2 v)
         {
-            for (int i = 0; i < 8; i += 2)
+            terrainNoiseValue = GetTerrainNoiseValue(v);
+
+            for (int i = 0; i < GameRegistry.BiomeRegistry.Count; i++)
+            {
+                if (terrainNoiseValue >= GameRegistry.BiomeRegistry[i].MinimumElevation)
+                {
+                    return GameRegistry.BiomeRegistry[i];
+                }
+            }
+
+            Console.Log("No biome at elevation: " + terrainNoiseValue);
+            return null;
+        }
+
+        private TileBase GetTerrainTileAtCoords(Vector2 v)
+        {
+            if (b.IsStatic)
+            {
+                return b.MainTile;
+            }
+
+            variationCode = new byte[4];
+
+            for (int i = 1; i < 8; i += 2)
             {
                 if (GetBiomeAtCoords(v + transitionDirections.ToArray()[i]).BiomeId.Equals(b.BiomeId))
                 {
@@ -173,86 +179,118 @@ public static class Generator
                 }
             }
 
-            //In Corners   
-            if (CompareCode(variationCode, TransitionCodes.ICorner_Back_Left))
+            #region Code checking
+            if (CompareCode(variationCode, TransitionCodes.Fill))
             {
-                return b.InCorner_Back_Left;
+                for (int i = 0; i < 8; i += 2)
+                {
+                    if (GetBiomeAtCoords(v + transitionDirections.ToArray()[i]).BiomeId.Equals(b.BiomeId))
+                    {
+                        variationCode[i / 2] = 1;
+                    }
+                    else
+                    {
+                        variationCode[i / 2] = 0;
+                    }
+                }
+
+                //In Corners   
+                if (CompareCode(variationCode, TransitionCodes.ICorner_Back_Left))
+                {
+                    return b.InCorner_Back_Left;
+                }
+
+                if (CompareCode(variationCode, TransitionCodes.ICorner_Back_Right))
+                {
+                    return b.InCorner_Back_Right;
+                }
+
+                if (CompareCode(variationCode, TransitionCodes.ICorner_Front_Left))
+                {
+                    return b.InCorner_Front_Left;
+                }
+
+                if (CompareCode(variationCode, TransitionCodes.ICorner_Front_Right))
+                {
+                    return b.InCorner_Front_Right;
+                }
+
+                return b.MainTile;
             }
 
-            if (CompareCode(variationCode, TransitionCodes.ICorner_Back_Right))
+            //OCorners
+            if (CompareCode(variationCode, TransitionCodes.OCorner_Back_Left))
             {
-                return b.InCorner_Back_Right;
+                return b.OutCorner_Back_Left;
             }
 
-            if (CompareCode(variationCode, TransitionCodes.ICorner_Front_Left))
+            if (CompareCode(variationCode, TransitionCodes.OCorner_Back_Right))
             {
-                return b.InCorner_Front_Left;
+                return b.OutCorner_Back_Right;
             }
 
-            if (CompareCode(variationCode, TransitionCodes.ICorner_Front_Right))
+            if (CompareCode(variationCode, TransitionCodes.OCorner_Front_Left))
             {
-                return b.InCorner_Front_Right;
+                return b.OutCorner_Front_Left;
             }
+
+            if (CompareCode(variationCode, TransitionCodes.OCorner_Front_Right))
+            {
+                return b.OutCorner_Front_Right;
+            }
+
+            //Ledges
+            if (CompareCode(variationCode, TransitionCodes.Ledge_Back))
+            {
+                return b.Ledge_Back;
+            }
+
+            if (CompareCode(variationCode, TransitionCodes.Ledge_Front))
+            {
+                return b.Ledge_Front;
+            }
+
+            if (CompareCode(variationCode, TransitionCodes.Ledge_Left))
+            {
+                return b.Ledge_Left;
+            }
+
+            if (CompareCode(variationCode, TransitionCodes.Ledge_Right))
+            {
+                return b.Ledge_Right;
+            }
+            #endregion
 
             return b.MainTile;
         }
 
-        //OCorners
-        if (CompareCode(variationCode, TransitionCodes.OCorner_Back_Left))
+        private TileBase GetObjectTileAtCoords(Vector2 v)
         {
-            return b.OutCorner_Back_Left;
-        }
+            ObjectNoiseValue = GetObjectNoiseValue(v);
 
-        if (CompareCode(variationCode, TransitionCodes.OCorner_Back_Right))
-        {
-            return b.OutCorner_Back_Right;
-        }
-
-        if (CompareCode(variationCode, TransitionCodes.OCorner_Front_Left))
-        {
-            return b.OutCorner_Front_Left;
-        }
-
-        if (CompareCode(variationCode, TransitionCodes.OCorner_Front_Right))
-        {
-            return b.OutCorner_Front_Right;
-        }
-
-        //Ledges
-        if (CompareCode(variationCode, TransitionCodes.Ledge_Back))
-        {
-            return b.Ledge_Back;
-        }
-
-        if (CompareCode(variationCode, TransitionCodes.Ledge_Front))
-        {
-            return b.Ledge_Front;
-        }
-
-        if (CompareCode(variationCode, TransitionCodes.Ledge_Left))
-        {
-            return b.Ledge_Left;
-        }
-
-        if (CompareCode(variationCode, TransitionCodes.Ledge_Right))
-        {
-            return b.Ledge_Right;
-        }
-        #endregion
-
-        return b.MainTile;
-    }
-
-    private static bool CompareCode(byte[] t, byte[] code)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            if (t[i] != code[i])
+            if (ObjectNoiseValue >= 10f - b.TreeDensity)
             {
-                return false;
+                return b.tree;
+            }
+            else
+            {
+                return null;
             }
         }
 
-        return true;
+        private bool CompareCode(byte[] t, byte[] code)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (t[i] != code[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }
+
+

@@ -6,7 +6,7 @@ public class ChunkManager : MonoBehaviour
 {
 
     #region Objects
-    public PlayerController player;
+    public GameObject player;
     public Grid grid;
 
     private Vector2Int oldPlayerChunk = Vector2Int.zero;
@@ -27,7 +27,7 @@ public class ChunkManager : MonoBehaviour
 
     private void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        player = GameObject.FindGameObjectWithTag("Player");
         grid = GameObject.FindGameObjectWithTag("Grid").GetComponent<Grid>();
 
         //oldPlayerChunk = Chunk.getChunkAt(Mathf.FloorToInt(player.transform.position.x), Mathf.FloorToInt(player.transform.position.y));
@@ -39,7 +39,7 @@ public class ChunkManager : MonoBehaviour
         {
             chk = new Chunk(0, 0, chunkPrefab);
             chk.ground_tilemap.transform.parent = grid.transform;
-            chk.unloadChunk();
+            chk.UnloadChunk();
 
             chunkPool.Add(chk);
         }
@@ -61,9 +61,9 @@ public class ChunkManager : MonoBehaviour
                 {
                     if (!chunkPool.Exists(c => c.corner.x == i && c.corner.y == j && c.active))
                     {
-                        chk = chunkPool.Find(c => c.ground_tilemap.gameObject.activeSelf == false);
+                        chk = chunkPool.Find(c => c.active == false);
 
-                        chk.setPositionAndActivate(Chunk.getChunkAt(i, j));
+                        chk.SetPositionAndActivate(Chunk.getChunkAt(i, j));
                         Generator.GenerateChunk(ref chk);
                     }
                 }
@@ -78,9 +78,9 @@ public class ChunkManager : MonoBehaviour
     private void OutsideRenderView(Chunk c)
     {
         distanceFromPlayer = Vector2Int.Distance(c.corner, currentChunk);
-        if (distanceFromPlayer > Chunk.CHUNK_SIZE_X * RenderDistance)
+        if (distanceFromPlayer > Chunk.CHUNK_SIZE_X * RenderDistance + 1)
         {
-            c.unloadChunk();
+            c.UnloadChunk();
         }
     }
 
